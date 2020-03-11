@@ -27,25 +27,25 @@ for(let y = 18; y > 0; y--){
 
 // массив элементов
 let mainArr = [
-    //Палка
+    // Палка
     [
         [0, 1],
         [0, 2],
         [0, 3],
     ],
-    //Квадрат
+    // Квадрат
     [
         [1, 0],
         [0, 1],
         [1, 1]
     ],
-    //L
+    // L
     [
         [1, 0],
         [0, 1],
         [0, 2]
     ],
-    // L в др сторону
+    // L зеркало
     [
         [1, 0],
         [1, 1],
@@ -56,12 +56,24 @@ let mainArr = [
         [1, 0],
         [2, 0],
         [1, 1]
+    ],
+    // Молния вправо
+    [
+        [1, 0],
+        [-1, 1],
+        [0, 1]
+    ],
+    // Молния влево
+    [
+        [1, 0],
+        [1, 1],
+        [2, 1]
     ]
 ];
 
 let currentFigure = 0;
 let figureBody = 0;
-let x = 5, y = 10;
+let x = 5, y = 15;
 
 function createEl(){
     // Создаем функцию рандомных чисел
@@ -83,3 +95,94 @@ function createEl(){
     }
 }
 createEl();
+
+function move() {
+    // Создаем флаг движения. Пока true фигура летит вниз
+    let moveFlag = true;
+    // Массив координат фигуры
+    let coordinates = [
+        [figureBody[0].getAttribute('posx'),figureBody[0].getAttribute('posy')],
+        [figureBody[1].getAttribute('posx'),figureBody[1].getAttribute('posy')],
+        [figureBody[2].getAttribute('posx'),figureBody[2].getAttribute('posy')],
+        [figureBody[3].getAttribute('posx'),figureBody[3].getAttribute('posy')]
+    ];
+    // Перебираем координаты
+    for (let i = 0; i < coordinates.length; i++){
+        // Если координата Y нижнего элемента станет 1 - остановить движение; Если внизу есть элемент с классом set - остановить движение
+        if(coordinates[i][1] == 1 || document.querySelector(`[posx = '${coordinates[i][0]}'][posy = '${coordinates[i][1]-1}']`).classList.contains('set')){
+            moveFlag = false;
+            break;
+        }
+    }
+    // Если флаг true то у Y  -1, если false присвоить класс set
+    if(moveFlag){
+        for (let  i = 0; i < figureBody.length; i++){
+            figureBody[i].classList.remove('figure');
+        }
+        figureBody = [
+            document.querySelector(`[posx = '${coordinates[0][0]}'][posy = '${coordinates[0][1]-1}']`),
+            document.querySelector(`[posx = '${coordinates[1][0]}'][posy = '${coordinates[1][1]-1}']`),
+            document.querySelector(`[posx = '${coordinates[2][0]}'][posy = '${coordinates[2][1]-1}']`),
+            document.querySelector(`[posx = '${coordinates[3][0]}'][posy = '${coordinates[3][1]-1}']`)
+        ];
+        for (let  i = 0; i < figureBody.length; i++){
+            figureBody[i].classList.add('figure');
+        }
+    } else {
+        for (let  i = 0; i < figureBody.length; i++){
+            figureBody[i].classList.remove('figure');
+            figureBody[i].classList.add('set');
+        }
+        // Снова создать элемент
+        createEl();
+    }
+}
+// Запуск функции с интервалом
+let interval = setInterval(() => {
+    move();
+}, 300);
+
+
+let flag = true;
+// Событие нажатия кнопки
+window.addEventListener('keydown', function(e){
+    let coordinate1 = [figureBody[0].getAttribute('posx'),figureBody[0].getAttribute('posy')];
+    let coordinate2 = [figureBody[1].getAttribute('posx'),figureBody[1].getAttribute('posy')];
+    let coordinate3 = [figureBody[2].getAttribute('posx'),figureBody[2].getAttribute('posy')];
+    let coordinate4 = [figureBody[3].getAttribute('posx'),figureBody[3].getAttribute('posy')];
+    //Определить новое положение фигуры в пространстве
+    function getNewState(a){
+        flag = true;
+        let figureNew = [
+            document.querySelector(`[posx = '${+coordinate1[0] + a}'][posy = '${coordinate1[1]-1}']`),
+            document.querySelector(`[posx = '${+coordinate2[0] + a}'][posy = '${coordinate2[1]-1}']`),
+            document.querySelector(`[posx = '${+coordinate3[0] + a}'][posy = '${coordinate3[1]-1}']`),
+            document.querySelector(`[posx = '${+coordinate4[0] + a}'][posy = '${coordinate4[1]-1}']`)
+        ];
+        
+        for(let i = 0; i < figureNew.length; i++){
+            
+            if(!figureNew[i] || figureNew[i].classList.contains('set')){
+                flag = false;
+            }
+        }
+        if(flag == true){
+            for (let  i = 0; i < figureBody.length; i++){
+                figureBody[i].classList.remove('figure');
+            }
+
+            figureBody = figureNew;
+
+            for (let  i = 0; i < figureBody.length; i++){
+                figureBody[i].classList.add('figure');
+            }
+        }
+    }
+    if(e.keyCode == 37){
+        getNewState(-1);
+    }else if(e.keyCode == 39){
+        getNewState(1);
+    }else if(e.keyCode == 40){
+        move();
+    }
+});
