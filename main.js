@@ -1,4 +1,24 @@
 'use strict';
+let overlay = document.querySelector('.overlay');
+let modal = document.querySelector('.modal');
+let speed = 0;
+modal.addEventListener('click', function(e){
+    let target = event.target;
+    if(target.classList.contains('easy')){
+        speed = 1000;
+    }else if(target.classList.contains('normal')){
+        speed = 500;
+    }else if(target.classList.contains('hard')){
+        speed = 200;
+    }
+    if (target.classList.contains('button')){
+        modal.style.display = 'none';
+        overlay.style.display = 'none';
+        startGame();
+    }
+});
+function startGame () {
+
 //Получаем елемент main
 let main = document.querySelector('.main');
 //Объявдляем переменную,создаем div и записываем его в эту переменную
@@ -294,6 +314,11 @@ function createEl(){
 }
 createEl();
 
+    // Отображение очков
+        let score = 0;
+        let input = document.getElementsByTagName('input')[0];
+        input.value = `Ваши очки: ${score}`;
+
 function move() {
     // Создаем флаг движения. Пока true фигура летит вниз
     let moveFlag = true;
@@ -313,7 +338,7 @@ function move() {
         }
     }
     // Если флаг true то у Y  -1, если false присвоить класс set
-    if(moveFlag){
+    if (moveFlag) {
         for (let  i = 0; i < figureBody.length; i++){
             figureBody[i].classList.remove('figure');
         }
@@ -331,14 +356,52 @@ function move() {
             figureBody[i].classList.remove('figure');
             figureBody[i].classList.add('set');
         }
+        // Проверка на заполненность ряда, если ряд заполнен убрать класс set  и предвинуть все эл-ты вниз
+        for (let i = 1; i < 15 ; i++){
+            let count = 0;
+            for (let k = 1; k < 11; k++) {
+                if (document.querySelector(`[posX = "${k}"][posY = "${i}"]`).classList.contains('set')){
+                    count++;
+                    if(count == 10){
+                        score += 10;
+                        input.value = `Ваши очки: ${score}`;
+                        for( let m = 1; m < 11; m++ ) {
+                            document.querySelector(`[posX = "${m}"][posY = "${i}"]`).classList.remove('set')
+                        }
+                        let set = document.querySelectorAll('.set');
+                        let newSet = [];
+                        for (let s = 0; s < set.length; s++){
+                            let setCordinates = [set[s].getAttribute('posX'), set[s].getAttribute('posY')];
+                            if (setCordinates[1] > i) {
+                                set[s].classList.remove('set');
+                                newSet.push(document.querySelector(`[posX = "${setCordinates[0]}"][posY = "${setCordinates[1] - 1}"]`));
+                            }
+                        }
+                        for( let a = 0; a < newSet.length; a++) {
+                            newSet[a].classList.add('set');
+                        }
+                        i--;
+                    }
+                }
+            }
+        }
+        // Если элемент окажется выше 15 строки - остановить игру
+        for (let n = 1; n < 11; n++){
+            if(document.querySelector(`[posX = "${n}"][posY = "15"]`).classList.contains('set')){
+                clearInterval(interval);
+                alert(`Игра окончена. Ваши очки: ${score}`);
+                break;
+            }
+        }
         // Снова создать элемент
         createEl();
+        
     }
 }
 // Запуск функции с интервалом
 let interval = setInterval(() => {
     move();
-}, 300);
+}, speed);
 
 
 let flag = true;
@@ -420,3 +483,5 @@ window.addEventListener('keydown', function(e){
         }
     }
 });
+
+};
