@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
     <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
@@ -11,36 +10,52 @@
     <link rel="mask-icon" href="img/favicon/safari-pinned-tab.svg" color="#5bbad5">
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
-    <title>Tetris</title>
+    <link rel="stylesheet" href="style.css">
+    <title>TETRIS</title>
 </head>
 <body>
 
+    <div class="overlay"></div>
+
+    <div class="modal">
+        <h2 class="modal-header">Выберите<br> уровень сложности</h2>
+        <div class="button easy">easy</div>
+        <div class="button normal">normal</div>
+        <div class="button hard">hard</div>
+    </div>
+
 <div class="gameArea">
-    .
+
     <div class="main"></div>
 
     <div class="controls">
-        <h2>Управление</h2>
-        <p>Вправо - стрелка вправо</p>
-        <p>Влево - стрелка влево</p>
-        <p>Повернуть фигуру - стрелка вверх</p>
-        <p>Стрелка вниз - ускорить фигуру</p>
+      <img class="controls-img" src="img/кнопки.png" alt="кнопки">
     </div> 
+    
     <input type="text" readonly>
 
     <audio controls class="audio">
         <source src="audio/Jungle Book.mp3" type="audio/ogg; codecs=vorbis">
         <source src="audio/Jurassic Park.mp3" type="audio/mpeg">
     </audio>
-   
-    <div class="overlay"></div>
 
-    <div class="modal">
-        <h2>Выберите уровень сложности</h2>
-        <div class="button easy">Easy</div>
-        <div class="button normal">Normal</div>
-        <div class="button hard">Hard</div>
+    <img class="girl decor-img" src="img/баба.png" alt="girl">
+    <img class="love-tetris decor-img" src="img/я люблю.png" alt="i love tetris">
+    <img class="kat decor-img" src="/img/кот.png" alt="kat">
+    <img class="disket decor-img" src="/img/дискета.png" alt="disket">
+
+    <button class="btn-mobile left"></button>
+    <button class="btn-mobile right"></button>
+    <button class="btn-mobile top"></button>
+    <button class="btn-mobile down"></button>
+
+    <div class="modal-end">
+        <p class="modal-end-score"></p>
+        <p>Еще раз?</p>
+        <button class="yes">Да</button>
+        <button class="no">Нет</button>
     </div>
+
 </div>    
 
 

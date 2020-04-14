@@ -1,6 +1,18 @@
 'use strict';
 const audio  = document.querySelector('.audio');
 
+const modalEnd = document.querySelector('.modal-end');
+const gameover = document.querySelector('.modal-end-score');
+const yes = document.querySelector('.yes');
+// const no = document.querySelector('.no');
+
+
+const height = document.documentElement.clientHeight;
+const gameArea = document.querySelector('.gameArea');
+gameArea.style.height = `${height}px`;
+
+
+
 window.addEventListener('keydown', (e) => {
 if(e.keyCode == 37 || e.keyCode == 39){
     event.preventDefault();
@@ -11,6 +23,7 @@ if(e.keyCode == 37 || e.keyCode == 39){
 const overlay = document.querySelector('.overlay'),
     modal = document.querySelector('.modal'),
     main = document.querySelector('.main'),
+    
     // массив элементов
     mainArr = [
         // Палка
@@ -262,10 +275,13 @@ class AppData {
     constructor(){
         this.speed = 0;
         this.score = 0;
+        this.color = [];
     }
     eventListener(){
         const overlay = document.querySelector('.overlay'),
-            modal = document.querySelector('.modal');
+            modal = document.querySelector('.modal'),
+            gameArea = document.querySelector('.gameArea');
+
         modal.addEventListener('click', function(e){
             let target = event.target;
             if(target.classList.contains('easy')){
@@ -278,6 +294,7 @@ class AppData {
             if (target.classList.contains('button')){
                 modal.style.display = 'none';
                 overlay.style.display = 'none';
+                gameArea.style.display = 'block';
                 this.startGame();
             }
         }.bind(appData));
@@ -310,12 +327,25 @@ class AppData {
     }  
 
     createEl() {
-        function createEl(){
+
+        function createEl(){      
+            function randColor() {
+                    var r = Math.floor(Math.random() * (256)),
+                        g = Math.floor(Math.random() * (256)),
+                        b = Math.floor(Math.random() * (256));
+                    return '#' + r.toString(16) + g.toString(16) + b.toString(16);  
+                }
+
+            for(let i = 0; i <= 3; i++){
+                appData.color[i] = randColor();
+            }
+
             // Создаем функцию рандомных чисел
             function getRandom(){
                 return Math.round(Math.random()*(mainArr.length - 1));
             }
             rotate = 1;
+
            // Результат записываем в переменную
             currentFigure = getRandom();
             
@@ -327,15 +357,21 @@ class AppData {
                 document.querySelector(`[posx = '${x + mainArr[currentFigure][2][0]}'][posy = '${y + mainArr[currentFigure][2][1]}']`)
             ];
             for (let  i = 0; i < figureBody.length; i++){
-                figureBody[i].classList.add('figure');
+                figureBody[i].classList.add('figure'); 
+                figureBody[i].style.background = appData.color[i];      
             }
+            for (let  i = 0; i < figureBody.length; i++){
+                figureBody[i].style.background = appData.color[i];    
+            }
+
         }
         createEl();
+        
     }
 
     showScore(){
         // Отображение очков
-        input.value = `Ваши очки: ${this.score}`;
+        input.value = `Очки: ${this.score}`;
     }
 
     move(interval){
@@ -360,6 +396,8 @@ class AppData {
             if (moveFlag) {
                 for (let  i = 0; i < figureBody.length; i++){
                     figureBody[i].classList.remove('figure');
+                    figureBody[i].style.background = '';
+                    
                 }
                 figureBody = [
                     document.querySelector(`[posx = '${coordinates[0][0]}'][posy = '${coordinates[0][1]-1}']`),
@@ -368,8 +406,10 @@ class AppData {
                     document.querySelector(`[posx = '${coordinates[3][0]}'][posy = '${coordinates[3][1]-1}']`)
                 ];
                 for (let  i = 0; i < figureBody.length; i++){
-                    figureBody[i].classList.add('figure');
+                    figureBody[i].classList.add('figure');  
+                    figureBody[i].style.background = appData.color[i];                  
                 }
+                    
             } else {
                 for (let  i = 0; i < figureBody.length; i++){
                     figureBody[i].classList.remove('figure');
@@ -384,20 +424,35 @@ class AppData {
                             if(count == 10){
                                 this.score += 10;
                                 input.value = `Ваши очки: ${this.score}`;
+                                // убираем set и фон
                                 for( let m = 1; m < 11; m++ ) {
                                     document.querySelector(`[posX = "${m}"][posY = "${i}"]`).classList.remove('set');
+                                    document.querySelector(`[posX = "${m}"][posY = "${i}"]`).style.background = '';
                                 }
+
                                 let set = document.querySelectorAll('.set');
+
+                                let colors = [];
+                                set.forEach((el, i) => {
+                                   let color = el.style.backgroundColor;
+                                   colors[i] = color;
+                                });
+
                                 let newSet = [];
                                 for (let s = 0; s < set.length; s++){
                                     let setCordinates = [set[s].getAttribute('posX'), set[s].getAttribute('posY')];
+                                    set[s].style.background = '';
                                     if (setCordinates[1] > i) {
                                         set[s].classList.remove('set');
+                                        
                                         newSet.push(document.querySelector(`[posX = "${setCordinates[0]}"][posY = "${setCordinates[1] - 1}"]`));
+                                       
+                                        
                                     }
                                 }
                                 for( let a = 0; a < newSet.length; a++) {
                                     newSet[a].classList.add('set');
+                                    newSet[a].style.background = colors[a];  
                                 }
                                 i--;
                             }
@@ -408,19 +463,26 @@ class AppData {
                 for (let n = 1; n < 11; n++){
                     if(document.querySelector(`[posX = "${n}"][posY = "15"]`).classList.contains('set')){
                         clearInterval(interval);
-                        alert(`Игра окончена. Ваши очки: ${this.score}`);
+                        modalEnd.style.transform = "translate(-50%, -50%)";
+                        gameover.textContent = `Игра окончена! 
+                                                Ваши очки: ${this.score}`;
+                        // alert(`Игра окончена. Ваши очки: ${this.score}`);
                         break;
                     }
                 }
+               
                 // Снова создать элемент
                 this.createEl();    
-            }    
+            } 
+  
     }
 
     controls(){
         let flag = true;
-        // Событие нажатия кнопки
-        window.addEventListener('keydown', function(e){
+
+        function moving (e) {
+           let target = e.target;
+
             let coordinate1 = [figureBody[0].getAttribute('posx'),figureBody[0].getAttribute('posy')];
             let coordinate2 = [figureBody[1].getAttribute('posx'),figureBody[1].getAttribute('posy')];
             let coordinate3 = [figureBody[2].getAttribute('posx'),figureBody[2].getAttribute('posy')];
@@ -445,23 +507,24 @@ class AppData {
                 if(flag == true){
                     for (let  i = 0; i < figureBody.length; i++){
                         figureBody[i].classList.remove('figure');
+                        figureBody[i].style.background = '';
                     }
-        
                     figureBody = figureNew;
-        
                     for (let  i = 0; i < figureBody.length; i++){
                         figureBody[i].classList.add('figure');
+                        figureBody[i].style.background = appData.color[i];
                     }
                 }
             }
-            if(e.keyCode == 37){
+            if(e.keyCode == 37 || target.classList.contains('left')){
                 getNewState(-1);
-            }else if(e.keyCode == 39){
+            }else if(e.keyCode == 39 || target.classList.contains('right')){
                 getNewState(1);
-            }else if(e.keyCode == 40){
-                this.move();
-            }else if(e.keyCode == 38){
+            }else if(e.keyCode == 40 || target.classList.contains('down')){
+                appData.move();
+            }else if(e.keyCode == 38 || target.classList.contains('top')){
                 flag = true;
+
                 let figureNew = [
                     document.querySelector(`[posx = '${+coordinate1[0] + mainArr[currentFigure][rotate+2][0][0]}'][posy = '${+coordinate1[1] + mainArr[currentFigure][rotate+2][0][1]}']`),
                     document.querySelector(`[posx = '${+coordinate2[0] + mainArr[currentFigure][rotate+2][1][0]}'][posy = '${+coordinate2[1] + mainArr[currentFigure][rotate+2][1][1]}']`),
@@ -479,12 +542,13 @@ class AppData {
                 if(flag == true){
                     for (let  i = 0; i < figureBody.length; i++){
                         figureBody[i].classList.remove('figure');
+                        figureBody[i].style.background = '';
                     }
-        
                     figureBody = figureNew;
-        
+
                     for (let  i = 0; i < figureBody.length; i++){
                         figureBody[i].classList.add('figure');
+                        figureBody[i].style.background = appData.color[i];
                     }
                     if(rotate < 4){
                         rotate++;
@@ -493,7 +557,11 @@ class AppData {
                     }
                 }
             }
-        }.bind(appData));
+        }
+
+        // Событие нажатия кнопки
+        window.addEventListener('keydown', moving);
+        window.addEventListener('click', moving);
 
     }
 
@@ -503,7 +571,7 @@ class AppData {
         this.showScore();
         this.move();
         this.controls();
-
+        
         // Запуск функции с интервалом
         let interval = setInterval(() => {
             this.move(interval);
@@ -511,9 +579,31 @@ class AppData {
     }
 }
 
+
+
 let appData = new AppData();
 appData.eventListener();
 
+
+
+yes.addEventListener('click', () => {
+    modalEnd.style.transform = "translate(-400%, -50%)";
+    const excel = document.querySelectorAll('.excel');
+    excel.forEach((el) => {
+        el.style.background = "";
+        el.classList.remove('set');
+        el.classList.remove('figure');
+    });
+        appData.createEl();
+        appData.showScore();
+        appData.move();
+        appData.controls();
+
+        // Запуск функции с интервалом
+        let interval = setInterval(() => {
+            appData.move(interval);
+        }, appData.speed);
+}); 
         
 
 
