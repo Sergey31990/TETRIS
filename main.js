@@ -3,9 +3,10 @@ const audio  = document.querySelector('.audio');
 
 const modalEnd = document.querySelector('.modal-end');
 const gameover = document.querySelector('.modal-end-score');
-const yes = document.querySelector('.yes');
-// const no = document.querySelector('.no');
 
+const yes = document.querySelector('.yes');
+const no = document.querySelector('.no');
+ const GameOver = document.querySelector('.gameOver');
 
 const height = document.documentElement.clientHeight;
 const gameArea = document.querySelector('.gameArea');
@@ -275,7 +276,7 @@ class AppData {
     constructor(){
         this.speed = 0;
         this.score = 0;
-        this.color = [];
+        this.color = 0;
     }
     eventListener(){
         const overlay = document.querySelector('.overlay'),
@@ -328,7 +329,8 @@ class AppData {
 
     createEl() {
 
-        function createEl(){      
+        function createEl(){     
+            //функция рандомного цвета 
             function randColor() {
                     var r = Math.floor(Math.random() * (256)),
                         g = Math.floor(Math.random() * (256)),
@@ -336,9 +338,9 @@ class AppData {
                     return '#' + r.toString(16) + g.toString(16) + b.toString(16);  
                 }
 
-            for(let i = 0; i <= 3; i++){
-                appData.color[i] = randColor();
-            }
+            
+                appData.color = randColor();
+           
 
             // Создаем функцию рандомных чисел
             function getRandom(){
@@ -358,11 +360,12 @@ class AppData {
             ];
             for (let  i = 0; i < figureBody.length; i++){
                 figureBody[i].classList.add('figure'); 
-                figureBody[i].style.background = appData.color[i];      
+                figureBody[i].style.background = `${appData.color}`; 
+                console.log( appData.color);     
             }
-            for (let  i = 0; i < figureBody.length; i++){
-                figureBody[i].style.background = appData.color[i];    
-            }
+            // for (let  i = 0; i < figureBody.length; i++){
+            //     figureBody[i].style.background = appData.color[i];    
+            // }
 
         }
         createEl();
@@ -407,7 +410,7 @@ class AppData {
                 ];
                 for (let  i = 0; i < figureBody.length; i++){
                     figureBody[i].classList.add('figure');  
-                    figureBody[i].style.background = appData.color[i];                  
+                    figureBody[i].style.background = appData.color;                  
                 }
                     
             } else {
@@ -423,7 +426,7 @@ class AppData {
                             count++;
                             if(count == 10){
                                 this.score += 10;
-                                input.value = `Ваши очки: ${this.score}`;
+                                input.value = `Очки: ${this.score}`;
                                 // убираем set и фон
                                 for( let m = 1; m < 11; m++ ) {
                                     document.querySelector(`[posX = "${m}"][posY = "${i}"]`).classList.remove('set');
@@ -464,8 +467,7 @@ class AppData {
                     if(document.querySelector(`[posX = "${n}"][posY = "15"]`).classList.contains('set')){
                         clearInterval(interval);
                         modalEnd.style.transform = "translate(-50%, -50%)";
-                        gameover.textContent = `Игра окончена! 
-                                                Ваши очки: ${this.score}`;
+                        gameover.textContent = `Ваши очки: ${this.score}`;
                         // alert(`Игра окончена. Ваши очки: ${this.score}`);
                         break;
                     }
@@ -512,7 +514,7 @@ class AppData {
                     figureBody = figureNew;
                     for (let  i = 0; i < figureBody.length; i++){
                         figureBody[i].classList.add('figure');
-                        figureBody[i].style.background = appData.color[i];
+                        figureBody[i].style.background = appData.color;
                     }
                 }
             }
@@ -548,7 +550,7 @@ class AppData {
 
                     for (let  i = 0; i < figureBody.length; i++){
                         figureBody[i].classList.add('figure');
-                        figureBody[i].style.background = appData.color[i];
+                        figureBody[i].style.background = appData.color;
                     }
                     if(rotate < 4){
                         rotate++;
@@ -604,6 +606,10 @@ yes.addEventListener('click', () => {
             appData.move(interval);
         }, appData.speed);
 }); 
-        
+   
+no.addEventListener('click', () => {
+    modalEnd.style.transform = "translate(-400%, -50%)";
+    GameOver.style.transform = "scale(1)";
+});
 
 
